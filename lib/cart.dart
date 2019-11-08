@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:orse/item_form.dart';
 
 class Cart extends StatefulWidget {
   Cart({Key key, this.title}) : super(key: key);
@@ -70,40 +71,23 @@ class _CartState extends State<Cart> {
             context: context,
             builder: (context){
               return AlertDialog(
-                title: Text("Novo item da lista"),
-                content: Form(
-                  child: SingleChildScrollView(
-                    //padding: EdgeInsets.only(bottom: 50.0),
-                    child: Column(
-                      children: <Widget>[
-                        TextFormField(
-                          decoration: InputDecoration(labelText: "Nome do Produto"),
-                        ),
-                        TextFormField(
-                          decoration: InputDecoration(labelText: "Preço do Produto", prefix: Text("R\$ ")),
-                          keyboardType: TextInputType.number,
-                        ),
-                        Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              FloatingActionButton(
-                                onPressed: add,
-                                child: Icon(Icons.add, color: Colors.black,),
-                                backgroundColor: Colors.white,
-                              ),
-                              Text('$_n', style: TextStyle(fontSize: 14.0)),
-                              FloatingActionButton(
-                                onPressed: minus,
-                                child: Icon(Icons.remove, color: Colors.black,),
-                                backgroundColor: Colors.white,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    )
+                title: Text("Adicionar Item"),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('Cancelar'),
+                    onPressed: (){
+                      Navigator.of(context).pop();
+                    },
                   ),
+                  FlatButton(
+                    child: Text('Adicionar'),
+                    onPressed: (){
+                      Navigator.of(context).pop();
+                    },
+                  ), 
+                ],
+                content: ItemForm(
+                  
                 )
               );
             }
