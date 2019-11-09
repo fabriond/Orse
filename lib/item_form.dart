@@ -36,6 +36,7 @@ class _ItemFormState extends State<ItemForm> {
 
   @override
   Widget build(BuildContext context) {
+    widget.callbackAmount(_n);
     return Form(
         child: SingleChildScrollView(
           //padding: EdgeInsets.only(bottom: 50.0),
@@ -43,9 +44,12 @@ class _ItemFormState extends State<ItemForm> {
             children: <Widget>[
               TextFormField(
                 decoration: InputDecoration(labelText: "Nome do Produto"),
+                onChanged: widget.callbackName,
               ),
               TextFormField(
                 decoration: InputDecoration(labelText: "Preço do Produto", prefix: Text("R\$ ")),
+                onChanged: widget.callbackPrice,
+                initialValue: '0.0',
                 keyboardType: TextInputType.number,
               ),
               SizedBox(

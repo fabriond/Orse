@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:orse/item_form.dart';
 
 class Cart extends StatefulWidget {
@@ -23,45 +22,46 @@ class Cart extends StatefulWidget {
 class _CartState extends State<Cart> {
   
   double total = 0.0;
-  int _n = 0;
   List<Widget> items = [];
 
-  void _addItem(name, amount, price) {
+  String name;
+  double price;
+  int amount;
+
+
+  void _addItem() {
     print("ENTREI NA ADD ITEM\n");
+    print(price);
+    print("PASSEI NA ADD ITEM\n");
+    
     setState(() {
+      total += price*amount;
       items.add(
         ListTile(
-          title: name,
-          subtitle: price,
-          trailing: Text(amount),
+          title: Text(name),
+          subtitle: Text(price.toString()),
+          trailing: Text(amount.toString())
         )
       );
     });
   }
 
-  void add() {
-    setState(() {
-      _n++;
-    });
-  }
-
-  void minus() {
-    setState(() {
-      if (_n != 0) 
-        _n--;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    print(items);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
       drawer: Drawer(),
       body: Center(
-        child: ListView(
-          children: items
+        child: CustomScrollView(
+          slivers: <Widget>[
+            ListView(
+              children: items
+            ),
+            Text('Total: ' + total.toString())
+          ],
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -82,12 +82,15 @@ class _CartState extends State<Cart> {
                   FlatButton(
                     child: Text('Adicionar'),
                     onPressed: (){
+                      _addItem();
                       Navigator.of(context).pop();
                     },
                   ), 
                 ],
                 content: ItemForm(
-                  
+                  callbackName: (value) => this.name = value,
+                  callbackPrice: (value) => this.price = double.parse(value),
+                  callbackAmount: (value) => this.amount = value,
                 )
               );
             }
