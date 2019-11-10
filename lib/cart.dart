@@ -27,22 +27,21 @@ class _CartState extends State<Cart> {
   String name;
   double price;
   int amount;
-
-
+  
   void _addItem() {
     print("ENTREI NA ADD ITEM\n");
     print(price);
     print("PASSEI NA ADD ITEM\n");
     
     setState(() {
-      total += price*amount;
-      items.add(
+      items = List.from(items)..add(
         ListTile(
           title: Text(name),
-          subtitle: Text(price.toString()),
+          subtitle: Text('R\$ ' + price.toString()),
           trailing: Text(amount.toString())
         )
       );
+      total += price*amount;
     });
   }
 
@@ -55,16 +54,38 @@ class _CartState extends State<Cart> {
       ),
       drawer: Drawer(),
       body: Center(
-        child: CustomScrollView(
-          slivers: <Widget>[
+        child: Stack(
+          fit: StackFit.passthrough,
+          children: <Widget>[
             ListView(
-              children: items
+              padding: EdgeInsets.all(8),
+              children: items,
             ),
-            Text('Total: ' + total.toString())
+            Positioned(
+              bottom: 16,
+              left: 16,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.teal
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(4),
+                  child: Text(
+                    'R\$ ' + total.toString(),
+                    style: TextStyle(
+                      fontSize: 32,
+                      color: Colors.white, 
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                ) 
+              ) 
+            ),
           ],
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      //floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(
