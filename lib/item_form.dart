@@ -8,15 +8,17 @@ class ItemForm extends StatefulWidget {
   final Function callbackAddItem;
 
   @override
-  _ItemFormState createState() => _ItemFormState(currentItem: item);
+  _ItemFormState createState() => _ItemFormState(oldItem: item);
 }
 
 
 class _ItemFormState extends State<ItemForm> {
 
-  _ItemFormState({this.currentItem}){
-    if(currentItem == null){
+  _ItemFormState({Item oldItem}){
+    if(oldItem == null){
       currentItem = Item();
+    } else {
+      currentItem = Item.copy(oldItem);
     }
   }
 
@@ -70,7 +72,7 @@ class _ItemFormState extends State<ItemForm> {
                 },
               ),
               TextFormField(
-                initialValue: currentItem.price == null ? null : currentItem.price.toString(),
+                initialValue: currentItem.price == null ? null : currentItem.price.toStringAsFixed(2),
                 decoration: InputDecoration(labelText: "Preço do Produto", prefix: Text("R\$ ")),
                 keyboardType: TextInputType.number,
                 onSaved: (value) => currentItem.price = double.parse(value.replaceAll(",", ".")),

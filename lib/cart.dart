@@ -50,12 +50,12 @@ class _CartState extends State<Cart> {
         padding: EdgeInsets.all(8),
         itemBuilder: (context, index){
           return Dismissible(
-            key: Key(items[index].name + ", " + items[index].price.toString()),
+            key: Key(items[index].name + ", " + items[index].price.toStringAsFixed(2)),
             background: Container(color: Colors.red),
-            //direction: DismissDirection.endToStart,
             onDismissed: (direction) {
-              // Remove the item from the data source.
               setState(() {
+                total -= items[index].price*items[index].amount;
+                total = total.abs();
                 items = List.from(items)..removeAt(index);
               });
 
@@ -72,6 +72,9 @@ class _CartState extends State<Cart> {
                       item: items[index], 
                       callbackAddItem: (Item item) {
                         setState(() {
+                          total += item.price*item.amount;
+                          total -= items[index].price*items[index].amount;
+                          total = total.abs();
                           items[index] = item;
                         });
                       }
@@ -80,7 +83,7 @@ class _CartState extends State<Cart> {
                 );
               },
               title: Text(items[index].name),
-              subtitle: Text('R\$ ' + items[index].price.toString()),
+              subtitle: Text('R\$ ' + items[index].price.toStringAsFixed(2)),
               trailing: ClipOval(
                 child: Container(
                   color: Colors.teal,
@@ -116,7 +119,7 @@ class _CartState extends State<Cart> {
               child: Padding(
                 padding: EdgeInsets.all(4),
                 child: Text(
-                  'R\$ ' + total.toString(),
+                  'R\$ ' + total.toStringAsFixed(2),
                   style: TextStyle(
                     fontSize: 32,
                     color: Colors.white, 
