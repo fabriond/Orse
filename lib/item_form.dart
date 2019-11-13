@@ -19,7 +19,7 @@ class ItemForm extends StatefulWidget {
 
 class _ItemFormState extends State<ItemForm> {
   
-  int _n = 0;
+  int _n = 1;
 
   void add() {
     setState(() {
@@ -30,7 +30,7 @@ class _ItemFormState extends State<ItemForm> {
 
   void minus() {
     setState(() {
-      if (_n != 0) 
+      if (_n > 1) 
         _n--;
     });
     widget.callbackAmount(_n);
