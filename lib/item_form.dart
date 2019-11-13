@@ -1,61 +1,89 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:orse/item.dart';
 
 class ItemForm extends StatefulWidget {
-  ItemForm({Key key,
-  @required this.callbackName,
-  @required this.callbackPrice,
-  @required this.callbackAmount}) : super(key: key);
+  ItemForm({Key key, this.callbackAddItem, this.item}) : super(key: key);
 
-  final callbackName;
-  
-  final callbackPrice;
-  
-  final callbackAmount;
+  final Item item;
+  final Function callbackAddItem;
 
   @override
-  _ItemFormState createState() => _ItemFormState();
+  _ItemFormState createState() => _ItemFormState(currentItem: item);
 }
 
+
 class _ItemFormState extends State<ItemForm> {
+
+  _ItemFormState({this.currentItem}){
+    if(currentItem == null){
+      currentItem = Item();
+    }
+  }
+
+  final _formKey = GlobalKey<FormState>();
   
-  int _n = 1;
+  Item currentItem;
+
+  void _validateAndAddItem(BuildContext context) {
+    if (_formKey.currentState.validate()) {
+      _formKey.currentState.save();
+      widget.callbackAddItem(currentItem);
+      Navigator.of(context).pop();
+    } 
+  }
 
   void add() {
     setState(() {
-      _n++;
+      currentItem.amount++;
     });
-    widget.callbackAmount(_n);
   }
 
   void minus() {
     setState(() {
-      if (_n > 1) 
-        _n--;
+      if(currentItem.amount > 1) 
+        currentItem.amount--;
     });
-    widget.callbackAmount(_n);
   }
 
   @override
   Widget build(BuildContext context) {
     
-    return Form(
+    return AlertDialog(
+      shape: RoundedRectangleBorder( 
+        borderRadius: BorderRadius.all(Radius.circular(10)) 
+      ),
+      title: currentItem.name == null ? Text("Adicionar item") : Text("Editar item"),
+      content: Form(
+        key: _formKey,
         child: SingleChildScrollView(
-          //padding: EdgeInsets.only(bottom: 50.0),
           child: Column(
             children: <Widget>[
               TextFormField(
+                initialValue: currentItem.name == null ? null : currentItem.name,
                 decoration: InputDecoration(labelText: "Nome do Produto"),
-                onChanged: widget.callbackName,
+                onSaved: (value) => currentItem.name = value,
+                validator: (value) {
+                  if(value.isEmpty){
+                    return "Nome não pode ser vazio";
+                  }
+                  return null;
+                },
               ),
               TextFormField(
+                initialValue: currentItem.price == null ? null : currentItem.price.toString(),
                 decoration: InputDecoration(labelText: "Preço do Produto", prefix: Text("R\$ ")),
-                onChanged: widget.callbackPrice,
                 keyboardType: TextInputType.number,
+                onSaved: (value) => currentItem.price = double.parse(value.replaceAll(",", ".")),
+                validator: (value) {
+                  if(value.isEmpty){
+                    return "Preço não pode ser vazio";
+                  } else if(double.tryParse(value.replaceAll(",", ".")) == null){
+                    return "Preço inválido";
+                  }
+                  return null;
+                },
               ),
-              SizedBox(
-                height: 8.0,
-              ),
+              SizedBox(height: 16.0),
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -66,7 +94,7 @@ class _ItemFormState extends State<ItemForm> {
                       child: Icon(Icons.remove, color: Colors.white,),
                       backgroundColor: Colors.teal,
                     ),
-                    Text('$_n', style: TextStyle(fontSize: 14.0)),
+                    Text(currentItem.amount.toString(), style: TextStyle(fontSize: 14.0)),
                     FloatingActionButton(
                       onPressed: add,
                       mini: true,
@@ -76,9 +104,25 @@ class _ItemFormState extends State<ItemForm> {
                   ],
                 ),
               ),
+              SizedBox(height: 8.0),
             ],
           )
         ),
-      );
+      ),
+      actions: <Widget>[
+        FlatButton(
+          child: Text('Cancelar'),
+          onPressed: (){
+            Navigator.of(context).pop();
+          },
+        ),
+        FlatButton(
+          child: Text('Salvar'),
+          onPressed: (){
+            _validateAndAddItem(context);
+          },
+        ), 
+      ],
+    );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:orse/item_form.dart';
+import 'package:orse/item.dart';
 
 class Cart extends StatefulWidget {
   Cart({Key key, this.title}) : super(key: key);
@@ -22,33 +23,12 @@ class Cart extends StatefulWidget {
 class _CartState extends State<Cart> {
   
   double total = 0.0;
-  List<Widget> items = [];
-
-  String name;
-  double price;
-  int amount = 1;
+  List<Item> items = [];
   
-  void _addItem() {
-    print("ENTREI NA ADD ITEM\n");
-    print(price);
-    print("PASSEI NA ADD ITEM\n");
-  
+  void _addItem(Item newItem) {  
     setState(() {
-      items = List.from(items)..add(
-        ListTile(
-          title: Text(name),
-          subtitle: Text('R\$ ' + price.toString()),
-          trailing: ClipOval(
-            child: Container(
-              color: Colors.teal,
-              height: 32,
-              width: 32,
-              child: Center(child: Text(amount.toString(), style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)))
-            )
-          ),
-        ),
-      );
-      total += price*amount;
+      items = List.from(items)..add(newItem);
+      total += newItem.price*newItem.amount;
     });
   }
 
@@ -58,41 +38,68 @@ class _CartState extends State<Cart> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        centerTitle: true,
       ),
-      drawer: Drawer(),
-      body: Center(
-        child: Stack(
-          fit: StackFit.passthrough,
-          children: <Widget>[
-            ListView.separated(
-              shrinkWrap: true,
-              separatorBuilder: (context, index) => Divider(
-                color: Colors.grey,
-              ),
-              itemCount: items.length,
-              padding: EdgeInsets.all(8),
-              itemBuilder: (context, index){
-                return Dismissible(
-                  key: Key(name + ", " + price.toString()),
-                  //direction: DismissDirection.endToStart,
-                  onDismissed: (direction) {
-                    // Remove the item from the data source.
-                    print("remove $items[index].length");
-                    setState(() {
-                      items = List.from(items)..removeAt(index);
-                    });
+      //drawer: Drawer(),
+      body: ListView.separated(
+        shrinkWrap: true,
+        separatorBuilder: (context, index) => Divider(
+          color: Colors.grey,
+        ),
+        itemCount: items.length,
+        padding: EdgeInsets.all(8),
+        itemBuilder: (context, index){
+          return Dismissible(
+            key: Key(items[index].name + ", " + items[index].price.toString()),
+            background: Container(color: Colors.red),
+            //direction: DismissDirection.endToStart,
+            onDismissed: (direction) {
+              // Remove the item from the data source.
+              setState(() {
+                items = List.from(items)..removeAt(index);
+              });
 
-                    Scaffold
-                      .of(context)
-                      .showSnackBar(SnackBar(content: Text("$name dismissed")));
-                  },
-                  child: items[index],
-                  background: Container(color: Colors.red)
+              Scaffold
+                .of(context)
+                .showSnackBar(SnackBar(content: Text(items[index].name + " removido")));
+            },
+            child: ListTile(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context){
+                    return ItemForm(
+                      item: items[index], 
+                      callbackAddItem: (Item item) {
+                        setState(() {
+                          items[index] = item;
+                        });
+                      }
+                    );
+                  }
                 );
               },
+              title: Text(items[index].name),
+              subtitle: Text('R\$ ' + items[index].price.toString()),
+              trailing: ClipOval(
+                child: Container(
+                  color: Colors.teal,
+                  height: 32,
+                  width: 32,
+                  child: Center(
+                    child: Text(
+                      items[index].amount.toString(), 
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold, 
+                        color: Colors.white
+                      )
+                    )
+                  )
+                )
+              ),
             ),
-          ],
-        ),
+          );
+        },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: Padding(
@@ -100,11 +107,12 @@ class _CartState extends State<Cart> {
           child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.teal,
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(5))
               ),
+              color: Colors.teal,
+              elevation: 6,
               child: Padding(
                 padding: EdgeInsets.all(4),
                 child: Text(
@@ -115,7 +123,7 @@ class _CartState extends State<Cart> {
                     fontWeight: FontWeight.bold,
                   ),
                 )
-              ) 
+              ),
             ),
             FloatingActionButton(
               tooltip: 'Adicionar Item',
@@ -124,29 +132,7 @@ class _CartState extends State<Cart> {
                 showDialog(
                   context: context,
                   builder: (context){
-                    return AlertDialog(
-                      title: Text("Adicionar Item"),
-                      actions: <Widget>[
-                        FlatButton(
-                          child: Text('Cancelar'),
-                          onPressed: (){
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        FlatButton(
-                          child: Text('Adicionar'),
-                          onPressed: (){
-                            _addItem();
-                            Navigator.of(context).pop();
-                          },
-                        ), 
-                      ],
-                      content: ItemForm(
-                        callbackName: (value) => this.name = value,
-                        callbackPrice: (value) => this.price = double.parse(value.replaceAll(",", ".")),
-                        callbackAmount: (value) => this.amount = value,
-                      )
-                    );
+                    return ItemForm(callbackAddItem: _addItem);
                   }
                 );
               },
