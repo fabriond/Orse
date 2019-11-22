@@ -53,15 +53,15 @@ class _CartState extends State<Cart> {
             key: Key(items[index].name + ", " + items[index].price.toStringAsFixed(2)),
             background: Container(color: Colors.red),
             onDismissed: (direction) {
+              Scaffold
+                .of(context)
+                .showSnackBar(SnackBar(content: Text(items[index].name + " removido")));
+              
               setState(() {
                 total -= items[index].price*items[index].amount;
                 total = total.abs();
                 items = List.from(items)..removeAt(index);
               });
-
-              Scaffold
-                .of(context)
-                .showSnackBar(SnackBar(content: Text(items[index].name + " removido")));
             },
             child: ListTile(
               onTap: () {
